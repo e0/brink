@@ -4,6 +4,7 @@ import rethinkdb
 
 
 class ObjectHandler(object_handler.ObjectHandler):
+
     def exclude(self, *args):
         self.query = self.query.without(*args)
         return self
@@ -14,6 +15,7 @@ class ObjectHandler(object_handler.ObjectHandler):
 
 
 class __MetaModel(models.ModelBase):
+
     def __new__(mcs, name, bases, dct):
         cls = super().__new__(mcs, name, bases, dct)
         setattr(cls, 'objects', ObjectHandler(cls))
@@ -21,6 +23,7 @@ class __MetaModel(models.ModelBase):
 
 
 class Model(models.Model, metaclass=__MetaModel):
+
     schema = None
 
     def validate(self):
