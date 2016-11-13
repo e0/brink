@@ -11,7 +11,7 @@ class ObjectHandler(object_handler.ObjectHandler):
 
     async def watch(self, full_change_obj=False):
         for change in self.query.changes().run():
-            yield self._wrap(change["new_val"])
+            yield change if full_change_obj else self._wrap(change["new_val"])
 
 
 class __MetaModel(models.ModelBase):
