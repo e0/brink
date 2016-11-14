@@ -19,7 +19,18 @@ TBD
 TBD
 
 ### Models
-TBD
+
+```python
+from brink import models
+
+
+class Message(models.Model):
+
+    schema = {
+	"message": {"type": "string"},
+	"sender": {"type": "string"}
+    }
+```
 
 ### Handlers
 TBD
