@@ -32,7 +32,7 @@ setup(
 
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
 
-    install_requires=["aiohttp", "aiohttp_autoreload", "remodel", "cerberus"],
+    install_requires=["aiohttp", "aiohttp_autoreload", "aiorethink", "cerberus"],
 
     extras_require={
         "dev": ["check-manifest"],

@@ -1,26 +1,13 @@
 import importlib
-import remodel.connection
-import remodel.utils
-import rethinkdb
-import brink.handlers
+import rethinkdb as r
 import aiohttp_autoreload
+import brink.handlers
+import brink.db
 from aiohttp import web
 
 
 def __print(message):
     print("==> %s" % message)
-
-
-def __prepare_db(conn_details):
-    remodel.connection.pool.configure(
-        db=conn_details["DATABASE"],
-        port=conn_details.get("PORT", 28015)
-    )
-
-    # __print("Creating tables")
-    # remodel.utils.create_tables()
-    # __print("Creating indexes")
-    # remodel.utils.create_indexes()
 
 
 def __resolve_func(func_string):
@@ -54,10 +41,9 @@ def __add_routes(app, urls):
 
 
 def run(settings, urls):
-    __prepare_db(settings.RETHINKDB_CONFIG)
-
     app = web.Application(middlewares=[m for m in settings.MIDDLEWARE])
     __add_routes(app, urls)
+    brink.db.conn.setup(settings.RETHINKDB_CONFIG)
     aiohttp_autoreload.start()
     web.run_app(app, port=8888)
 
