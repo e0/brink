@@ -27,13 +27,18 @@ from brink import models
 class Message(models.Model):
 
     schema = {
-	"message": {"type": "string"},
-	"sender": {"type": "string"}
+        "message": {"type": "string"},
+        "sender": {"type": "string"}
     }
 ```
 
 ### Handlers
-TBD
+
+```python
+async def handle_honks(request, ws):
+    async for honk in Honk.changes().all():
+        ws.send_json(honk)
+```
 
 ### Basic frontend
 TBD
