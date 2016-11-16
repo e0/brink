@@ -2,39 +2,24 @@ import rethinkdb as r
 from inflection import tableize
 from cerberus import Validator
 from brink.db import conn
+import copy
 
 
 class ObjectManager(object):
 
     def __init__(self, model_cls, table_name):
         self.model_cls = model_cls
-        self.query = r.table(table_name)
+        self.table_name = table_name
 
-    def exclude(self, *args):
-        self.query = self.query.without(*args)
-        return self
+    def all(self):
+        return ObjectSet(self.model_cls, self.table_name)
 
-    async def all(self, generator=True):
-        if generator:
-            return self.__generator
-        else:
-            items = []
-            async for item in self.__generator():
-                items.append(item)
-            return items
+    def filter(self, *args, **kwargs):
+        return self.all().filter(*args, **kwargs)
 
     async def get(self, id):
-        return self.__wrap(await self.query.get(id).run(await conn.get()))
-
-    async def __generator(self):
-        cursor = await self.query.run(await conn.get())
-        while await cursor.fetch_next():
-            yield self.__wrap(await cursor.next())
-
-    def __wrap(self, data):
-        model = self.model_cls()
-        model.data.update(data)
-        return model
+        return self.model_cls(
+            **(await r.table(self.table_name).get(id).run(await conn.get())))
 
 
 class MetaModel(type):
@@ -51,6 +36,7 @@ class MetaModel(type):
 
 
 class UndefinedSchema(Exception):
+
     pass
 
 
@@ -59,11 +45,18 @@ class ValidationError(Exception):
     def __init__(self, errors):
         self.errors = errors
 
+class UnexpectedDbResponse(Exception):
+
+    pass
+
 
 class Model(object, metaclass=MetaModel):
 
     schema = None
     data = {}
+
+    def __init__(self, **kwargs):
+        self.data = kwargs
 
     def validate(self):
         if self.schema is None:
@@ -77,17 +70,98 @@ class Model(object, metaclass=MetaModel):
         return True
 
     async def save(self):
-        pass
+        if hasattr(self, 'before_save'):
+            self.before_save()
+
+        print(self.password)
+        print(self.data)
+        query = r.table(self.table_name)
+
+        if hasattr(self, "id"):
+            query = query.get(self.id).replace(self.data, return_changes=True)
+        else:
+            query = query.insert(self.data, return_changes=True)
+
+        resp = await query.run(await conn.get())
+
+        try:
+            self.replace(resp['changes'][0]['new_val'])
+        except KeyError:
+            raise UnexpectedDbResponse()
+
+        return self
 
     async def delete(self):
         pass
 
+    def patch(self, data):
+        self.data.update(data)
+        return self
+
+    def replace(self, data):
+        self.data = {}
+        self.data.update(data)
+        return self
+
     def __getattr__(self, attr):
-        return self.data[attr]
+        try:
+            return self.data[attr]
+        except KeyError as e:
+            print(self.data)
+            print(e)
+            raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        self.data[attr] = value
+        if hasattr(self, attr):
+            super().__setattr__(attr, value)
+        else:
+            print("%s: %s" % (attr, value))
+            self.data[attr] = value
+
+    def __delattr__(self, attr):
+        try:
+            del self.data[attr]
+        except KeyError:
+            raise AttributeError(attr)
 
     def __json__(self):
         return self.data
+
+
+class ObjectSet(object):
+
+    cursor = None
+
+    def __init__(self, model_cls, table_name):
+        self.query = r.table(table_name)
+        self.model_cls = model_cls
+
+    def changes(self):
+        self.query = self.query.changes()
+        return self
+
+    async def as_list(self):
+        return [obj async for obj in self]
+
+    async def run(self):
+        return await self.query.run(await conn.get())
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        if self.cursor is None:
+            self.cursor = await self.query.run(await conn.get())
+
+        if (await self.cursor.fetch_next()):
+            return self.model_cls(**await self.cursor.next())
+        else:
+            raise StopAsyncIteration
+
+    def __getattr__(self, attr):
+        def func_proxy(*args, **kwargs):
+            self.query = getattr(self.query, attr)(*args, **kwargs)
+            return self
+        return func_proxy
+        
 
