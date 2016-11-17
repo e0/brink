@@ -12,7 +12,7 @@ class ObjectManager(object):
         self.table_name = table_name
 
     def all(self):
-        return ObjectSet(self.model_cls, self.table_name)
+        return ObjectSet(self.model_cls, r.table(self.table_name))
 
     def filter(self, *args, **kwargs):
         return self.all().filter(*args, **kwargs)
@@ -20,6 +20,9 @@ class ObjectManager(object):
     async def get(self, id):
         return self.model_cls(
             **(await r.table(self.table_name).get(id).run(await conn.get())))
+
+    async def delete(self, id):
+        await r.table(self.table_name).get(id).delete().run(await conn.get())
 
 
 class MetaModel(type):
@@ -73,8 +76,6 @@ class Model(object, metaclass=MetaModel):
         if hasattr(self, 'before_save'):
             self.before_save()
 
-        print(self.password)
-        print(self.data)
         query = r.table(self.table_name)
 
         if hasattr(self, "id"):
@@ -92,7 +93,7 @@ class Model(object, metaclass=MetaModel):
         return self
 
     async def delete(self):
-        pass
+        self.__class__.delete(self.id)
 
     def patch(self, data):
         self.data.update(data)
@@ -107,22 +108,22 @@ class Model(object, metaclass=MetaModel):
         try:
             return self.data[attr]
         except KeyError as e:
-            print(self.data)
-            print(e)
             raise AttributeError(attr)
-
-    def __setattr__(self, attr, value):
-        if hasattr(self, attr):
-            super().__setattr__(attr, value)
-        else:
-            print("%s: %s" % (attr, value))
-            self.data[attr] = value
 
     def __delattr__(self, attr):
         try:
             del self.data[attr]
         except KeyError:
             raise AttributeError(attr)
+
+    def __getitem__(self, attr):
+        return self.data[attr]
+
+    def __setitem__(self, attr, value):
+        self.data[attr] = value
+
+    def __delitem__(self, attr):
+        del self.data[attr]
 
     def __json__(self):
         return self.data
@@ -132,12 +133,14 @@ class ObjectSet(object):
 
     cursor = None
 
-    def __init__(self, model_cls, table_name):
-        self.query = r.table(table_name)
+    def __init__(self, model_cls, query):
+        self.query = query
         self.model_cls = model_cls
+        self.returns_changes = False
 
     def changes(self):
         self.query = self.query.changes()
+        self.returns_changes = True
         return self
 
     async def as_list(self):
@@ -154,7 +157,12 @@ class ObjectSet(object):
             self.cursor = await self.query.run(await conn.get())
 
         if (await self.cursor.fetch_next()):
-            return self.model_cls(**await self.cursor.next())
+            data = await self.cursor.next();
+
+            if self.returns_changes:
+                data = data["new_val"]
+
+            return self.model_cls(**data)
         else:
             raise StopAsyncIteration
 
