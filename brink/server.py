@@ -5,6 +5,7 @@ from brink.handlers import __handler_wrapper, __ws_handler_wrapper
 from brink.utils import resolve_func
 import importlib
 import aiohttp_autoreload
+import logging
 
 
 def run_server(conf):
@@ -20,6 +21,7 @@ def run_server(conf):
                   func in config.get("MIDDLEWARE", [])]
 
     server = web.Application(middlewares=middleware)
+    logger = logging.getLogger("brink")
 
     # Iterate over all installed apps and add their routes
     for app in config.get("INSTALLED_APPS", []):
@@ -31,6 +33,13 @@ def run_server(conf):
             print("\nDetected code change. Reloading...\n"))
         aiohttp_autoreload.start()
 
+        logger.setLevel(logging.DEBUG)
+
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
+
+    server.make_handler(access_log=logger)
     web.run_app(server, port=config.get("PORT", 8888))
 
 

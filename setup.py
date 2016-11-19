@@ -8,14 +8,14 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name="sample",
+    name="brink",
     version="0.1.0",
-    description="A simple web framework.",
+    description="A simple real time web framework based on aiohttp and RethinkDB.",
     long_description=long_description,
-    url="https://github.com/pypa/sampleproject",
-    author="The Python Packaging Authority",
-    author_email="pypa-dev@googlegroups.com",
-    license="MIT",
+    url="https://github.com/lohmander/brink",
+    author="CH Lohmander",
+    author_email="hannes@lohmander.me",
+    license="BSD-3",
 
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -40,13 +40,4 @@ setup(
     },
 
     scripts=["bin/brink"],
-
-    # To provide executable scripts, use entry points in preference to the
-    # "scripts" keyword. Entry points provide cross-platform support and allow
-    # pip to create the appropriate form of executable for the target platform.
-    entry_points={
-        "console_scripts": [
-            "sample=sample:main",
-        ],
-    },
 )
