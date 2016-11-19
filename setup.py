@@ -23,7 +23,7 @@ setup(
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
 
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: BSD-3 License",
 
         "Programming Language :: Python :: 3.5",
     ],
