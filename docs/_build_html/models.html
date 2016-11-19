@@ -34,6 +34,7 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="Brink 0.1.0 documentation" href="index.html"/>
+        <link rel="next" title="Users and Authentication" href="users_auth.html"/>
         <link rel="prev" title="Handlers" href="handlers.html"/> 
 
   
@@ -93,8 +94,14 @@
 <li class="toctree-l1"><a class="reference internal" href="handlers.html">Handlers</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#creating-a-model">Creating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bulding-queries">Bulding queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#change-feeds">Change feeds</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption"><span class="caption-text">Contrib</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="users_auth.html">Users and Authentication</a></li>
 </ul>
 
             
@@ -155,6 +162,45 @@
 </pre></div>
 </div>
 </div>
+<div class="section" id="bulding-queries">
+<h2>Bulding queries<a class="headerlink" href="#bulding-queries" title="Permalink to this headline">¶</a></h2>
+<p>You have full access to the ReQL API provided by RethinkDB.</p>
+<p><strong>Fetch an item</strong>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">await</span> <span class="n">Item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Delete an item</strong>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">await</span> <span class="n">Item</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Save an item</strong>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">item</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+<span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">await</span> <span class="n">item</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Fetch all items</strong>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">await</span> <span class="n">Item</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When fetching multiple items you will get an async iterator back by default. You can get a plain list instead by calling <code class="docutils literal"><span class="pre">Item.all().as_list()</span></code> instead.</p>
+</div>
+<p><strong>Fetch items where value is True</strong>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">await</span> <span class="n">Item</span><span class="o">.</span><span class="n">filter</span><span class="p">({</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="change-feeds">
+<h2>Change feeds<a class="headerlink" href="#change-feeds" title="Permalink to this headline">¶</a></h2>
+<p>Subscribing to a change feed is super easy.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">Item</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">changes</span><span class="p">():</span>
+   <span class="nb">print</span><span class="p">(</span><span class="k">await</span> <span class="n">item</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Yes. That&#8217;s really it :)</p>
+</div>
 </div>
 
 
@@ -163,6 +209,8 @@
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="users_auth.html" class="btn btn-neutral float-right" title="Users and Authentication" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="handlers.html" class="btn btn-neutral" title="Handlers" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
