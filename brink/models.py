@@ -1,28 +1,9 @@
-import rethinkdb as r
 from inflection import tableize
 from cerberus import Validator
 from brink.db import conn
-import copy
-
-
-class ObjectManager(object):
-
-    def __init__(self, model_cls, table_name):
-        self.model_cls = model_cls
-        self.table_name = table_name
-
-    def all(self):
-        return ObjectSet(self.model_cls, r.table(self.table_name))
-
-    def filter(self, *args, **kwargs):
-        return self.all().filter(*args, **kwargs)
-
-    async def get(self, id):
-        return self.model_cls(
-            **(await r.table(self.table_name).get(id).run(await conn.get())))
-
-    async def delete(self, id):
-        await r.table(self.table_name).get(id).delete().run(await conn.get())
+from brink.object_manager import ObjectManager
+from brink.exceptions import UndefinedSchema, UnexpectedDbResponse, ValidationError
+import rethinkdb as r
 
 
 class MetaModel(type):
@@ -36,21 +17,6 @@ class MetaModel(type):
 
     def __getattr__(self, attr):
         return getattr(self.objects, attr)
-
-
-class UndefinedSchema(Exception):
-
-    pass
-
-
-class ValidationError(Exception):
-
-    def __init__(self, errors):
-        self.errors = errors
-
-class UnexpectedDbResponse(Exception):
-
-    pass
 
 
 class Model(object, metaclass=MetaModel):
@@ -78,15 +44,18 @@ class Model(object, metaclass=MetaModel):
 
         query = r.table(self.table_name)
 
-        if hasattr(self, "id"):
+        try:
             query = query.get(self.id).replace(self.data, return_changes=True)
-        else:
+        except AttributeError:
             query = query.insert(self.data, return_changes=True)
 
         resp = await query.run(await conn.get())
 
         try:
-            self.replace(resp['changes'][0]['new_val'])
+            changes = resp["changes"]
+
+            if len(changes) > 0:
+                self.replace(resp['changes'][0]['new_val'])
         except KeyError:
             raise UnexpectedDbResponse()
 
@@ -96,13 +65,15 @@ class Model(object, metaclass=MetaModel):
         self.__class__.delete(self.id)
 
     def patch(self, data):
+        if isinstance(data, Model):
+            data = data.data
+
         self.data.update(data)
         return self
 
     def replace(self, data):
         self.data = {}
-        self.data.update(data)
-        return self
+        return self.patch(data)
 
     def __getattr__(self, attr):
         try:
@@ -127,49 +98,4 @@ class Model(object, metaclass=MetaModel):
 
     def __json__(self):
         return self.data
-
-
-class ObjectSet(object):
-
-    cursor = None
-
-    def __init__(self, model_cls, query):
-        self.query = query
-        self.model_cls = model_cls
-        self.returns_changes = False
-
-    def changes(self):
-        self.query = self.query.changes()
-        self.returns_changes = True
-        return self
-
-    async def as_list(self):
-        return [obj async for obj in self]
-
-    async def run(self):
-        return await self.query.run(await conn.get())
-
-    def __aiter__(self):
-        return self
-
-    async def __anext__(self):
-        if self.cursor is None:
-            self.cursor = await self.query.run(await conn.get())
-
-        if (await self.cursor.fetch_next()):
-            data = await self.cursor.next();
-
-            if self.returns_changes:
-                data = data["new_val"]
-
-            return self.model_cls(**data)
-        else:
-            raise StopAsyncIteration
-
-    def __getattr__(self, attr):
-        def func_proxy(*args, **kwargs):
-            self.query = getattr(self.query, attr)(*args, **kwargs)
-            return self
-        return func_proxy
-        
 
