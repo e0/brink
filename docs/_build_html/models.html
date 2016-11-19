@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -9,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; Brink 0.1.0 documentation</title>
+  <title>Models &mdash; Brink 0.1.0 documentation</title>
   
 
   
@@ -32,9 +31,10 @@
 
   
         <link rel="index" title="Index"
-              href="#"/>
+              href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Brink 0.1.0 documentation" href="index.html"/> 
+    <link rel="top" title="Brink 0.1.0 documentation" href="index.html"/>
+        <link rel="prev" title="Handlers" href="handlers.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -87,15 +87,14 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="urls.html">URLs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="handlers.html">Handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-model">Creating a model</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Contrib</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="users_auth.html">Users and Authentication</a></li>
+</li>
 </ul>
 
             
@@ -118,7 +117,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -126,9 +125,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li></li>
+    <li>Models</li>
       <li class="wy-breadcrumbs-aside">
         
+          
+            <a href="_sources/models.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -138,17 +139,35 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
+  <div class="section" id="models">
+<h1>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h1>
+<p>Models in Brink integrate seamlessly with RethinkDB, makes it a breeze to validate data and more.</p>
+<div class="section" id="creating-a-model">
+<h2>Creating a model<a class="headerlink" href="#creating-a-model" title="Permalink to this headline">¶</a></h2>
+<p>Models simply have to inherit from the <code class="docutils literal"><span class="pre">brink.models.Model</span></code> class and provide a schema to be used for validation. The schema should be specified according to the <a class="reference external" href="http://docs.python-cerberus.org/en/stable/">Cerberus</a> validator specification.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">brink.models</span> <span class="k">import</span> <span class="n">Model</span>
 
-<h1 id="index">Index</h1>
-
-<div class="genindex-jumpbox">
- 
+<span class="k">class</span> <span class="nc">Message</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+   <span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+      <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;minlength&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+   <span class="p">}</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="handlers.html" class="btn btn-neutral" title="Handlers" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

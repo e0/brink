@@ -18,6 +18,23 @@ Contents:
    getting_started
    ...
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Usage
+
+   config
+   urls
+   handlers
+   models
+   ...
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contrib
+
+   users_auth
+   ...
+
 .. _aiohttp: http://aiohttp.readthedocs.io/
 .. _RethinkDB: http://rethinkdb.com
 
