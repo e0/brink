@@ -1,0 +1,38 @@
+#!/usr/bin/python
+
+from brink.server import run_server
+import argparse
+import os
+import sys
+
+def run(args):
+    try:
+        sys.path.append(os.getcwd())
+        import settings
+        setattr(settings, "DEBUG", args.debug)
+    except ModuleNotFoundError:
+        print("No settings.py file found in the current directory.")
+        print("Make sure to be in the project root directory when starting the Brink server.")
+        return
+
+    run_server(settings)
+
+parser = argparse.ArgumentParser(description="Command line utility for the Brink Framework.")
+
+subparsers = parser.add_subparsers(help="Available commands")
+
+parser_run = subparsers.add_parser("run", help="Runs Brink project locally")
+parser_run.add_argument("--docker", action="store_true", help="Run inside Docker")
+parser_run.add_argument("--db", action="store_true", help="Run RethinkDB inside Docker and link it to the Brink container")
+parser_run.add_argument("--debug", action="store_true", help="Set DEBUG flag to True")
+parser_run.set_defaults(func=run)
+
+parser_syncdb = subparsers.add_parser("sync-db", help="Creates tables and indexes in the database")
+
+parser_start_project = subparsers.add_parser("start-project", help="Start a new Brink project")
+
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    args.func(args)
+

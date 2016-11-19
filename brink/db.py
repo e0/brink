@@ -11,8 +11,8 @@ class Connection(object):
 
     async def get(self):
         return await r.connect(
-            db=self.config.get("DATABASE", "test"),
-            port=self.config.get("PORT", 28015)
+            db=self.config.get("db", "test"),
+            port=self.config.get("port", 28015)
         )
 
 
