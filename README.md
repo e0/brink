@@ -1,44 +1,19 @@
 # Brink Framework
 
-- [Introduction](#introduction)
-- [Getting started](#getting-started)
-- [Tutorial](#tutorial)
-    - [Start project](#start-project)
-    - [Models](#models)
-    - [Handlers](#handlers)
-    - [Basic frontend](#basic-frontend)
+## Installation
 
-## Introduction
-TBD
+    $ pip install brink
 
 ## Getting started
-TBD
 
-## Tutorial
-### Start project
-TBD
+Getting started is really easy assuming you already have RethinkDB up and running. You might need to review the `config.py` file, to ensure it's compatible with your setup.
 
-### Models
+    $ brink start-project myproject
+    $ cd myproject
+    $ brink sync-db
+    $ brink run
 
-```python
-from brink import models
+## Documentation
 
+Full documentation is (will be) available at <https://lohmander.github.io/brink/>.
 
-class Message(models.Model):
-
-    schema = {
-        "message": {"type": "string"},
-        "sender": {"type": "string"}
-    }
-```
-
-### Handlers
-
-```python
-async def handle_honks(request, ws):
-    async for honk in Honk.changes().all():
-        ws.send_json(honk)
-```
-
-### Basic frontend
-TBD
