@@ -3,10 +3,8 @@ import rethinkdb as r
 
 class Connection(object):
 
-    def __init__(self):
-        r.set_loop_type("asyncio")
-
     def setup(self, config):
+        r.set_loop_type("asyncio")
         self.config = config
 
     async def get(self):
