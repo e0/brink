@@ -1,53 +1,131 @@
 from inflection import tableize
-from cerberus import Validator
 from brink.db import conn
 from brink.object_manager import ObjectManager
 from brink.exceptions import UndefinedSchema, UnexpectedDbResponse, ValidationError
+from brink.fields import Field
 import rethinkdb as r
 
 
-class MetaModel(type):
+class ModelMeta(object):
+    def __init__(self):
+        self.fields = {}
 
+    def add_field(self, name, field):
+        self.fields[name] = field
+
+class ModelBase(type):
     def __new__(cls, name, bases, attrs):
-        new_cls = super().__new__(cls, name, bases, attrs)
+        super_new = super().__new__
+
+        parents = [b for b in bases if isinstance(b, ModelBase)]
+        if not parents:
+            return super_new(cls, name, bases, attrs)
+
+        new_attrs = {}
+        meta_attrs = ModelMeta()
+        meta_attrs.add_field("id", Field(pk=True))
+
+        for attr, val in attrs.items():
+            if isinstance(val, Field):
+                meta_attrs.add_field(attr, val)
+            else:
+                new_attrs[attr] = val
+
+        new_cls = super_new(cls, name, bases, new_attrs)
         table_name = tableize(name)
+
+        setattr(new_cls, "_meta", meta_attrs)
         setattr(new_cls, "objects", ObjectManager(new_cls, table_name))
         setattr(new_cls, "table_name", table_name)
+
         return new_cls
 
     def __getattr__(self, attr):
         return getattr(self.objects, attr)
 
-
-class Model(object, metaclass=MetaModel):
-
-    schema = None
-    data = {}
-
+class Model(object, metaclass=ModelBase):
     def __init__(self, **kwargs):
-        self.data = kwargs
+        self._state = {}
+        self.wrap(kwargs)
+
+    def __json__(self):
+        data = {}
+
+        for name, field in self.fields:
+            try:
+                if field.hidden:
+                    continue
+
+                data[name] = self._state[name]
+            except KeyError:
+                continue
+
+        return data
+
+    def __setattr__(self, attr, value):
+        if attr in [key for key, _ in self.fields]:
+            self._state[attr] = self._meta.fields[attr].validate(value)
+        else:
+            super().__setattr__(attr, value)
+
+    def __getattr__(self, attr):
+        try:
+            return self._state[attr]
+        except KeyError:
+            raise AttributeError(attr)
+
+    @property
+    def fields(self):
+        for attr, value in self._meta.fields.items():
+            if isinstance(value, Field):
+                yield attr, value
+
+    @property
+    def __db_repr(self):
+        data = {}
+
+        for key, field in self.fields:
+            if field.pk:
+                continue
+
+            data[key] = self._state[key]
+
+        return data
+
+    def wrap(self, data):
+        for name, field in self.fields:
+            try:
+                self._state[name] = data[name]
+            except KeyError:
+                continue
 
     def validate(self):
-        if self.schema is None:
-            raise UndefinedSchema()
+        errors = {}
 
-        v = Validator(self.schema)
+        for name, field in self.fields:
+            try:
+                field.validate(self._state.get(name))
+            except Exception as e:
+                errors[name] = e
 
-        if not v.validate(self.data):
-            raise ValidationError(v.errors)
+        if len(errors) is not 0:
+            raise Exception(errors)
 
         return True
 
     async def save(self):
-        if hasattr(self, 'before_save'):
+        if hasattr(self, "before_save"):
             self.before_save()
 
         query = r.table(self.table_name)
 
-        try:
-            query = query.get(self.id).replace(self.data, return_changes=True)
-        except AttributeError:
-            query = query.insert(self.data, return_changes=True)
+        if self._state.get("id"):
+            query = query \
+                .get(self._state.get("id")) \
+                .replace(self.__db_repr, return_changes=True)
+        else:
+            query = query \
+                .insert(self.__db_repr, return_changes=True)
 
         resp = await query.run(await conn.get())
 
@@ -55,47 +133,15 @@ class Model(object, metaclass=MetaModel):
             changes = resp["changes"]
 
             if len(changes) > 0:
-                self.replace(resp['changes'][0]['new_val'])
+                self.wrap(resp["changes"][0]["new_val"])
         except KeyError:
             raise UnexpectedDbResponse()
 
         return self
 
     async def delete(self):
-        self.__class__.delete(self.id)
-
-    def patch(self, data):
-        if isinstance(data, Model):
-            data = data.data
-
-        self.data.update(data)
-        return self
-
-    def replace(self, data):
-        self.data = {}
-        return self.patch(data)
-
-    def __getattr__(self, attr):
-        try:
-            return self.data[attr]
-        except KeyError as e:
-            raise AttributeError(attr)
-
-    def __delattr__(self, attr):
-        try:
-            del self.data[attr]
-        except KeyError:
-            raise AttributeError(attr)
-
-    def __getitem__(self, attr):
-        return self.data[attr]
-
-    def __setitem__(self, attr, value):
-        self.data[attr] = value
-
-    def __delitem__(self, attr):
-        del self.data[attr]
-
-    def __json__(self):
-        return self.data
+        await r.table_name(self.table_name) \
+            .get(self.id) \
+            .delete() \
+            .run(await conn.get())
 

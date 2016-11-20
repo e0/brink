@@ -26,16 +26,13 @@ def __ws_handler_wrapper(handler):
 
 
 def handle_model(cls, validate=True):
-    v = Validator(cls.schema)
+    v = Validator({})
 
     def decorator(handler):
         async def new_handler(request):
             body = await request.json()
-
-            if validate and not v.validate(body):
-                raise HTTPBadRequest(text=json_dumps(v.errors), content_type="application/json")
-
             model = cls(**body)
+            model.validate()
             return await handler(request, model)
         return new_handler
     return decorator

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from brink.server import run_server
-from brink.models import MetaModel, Model
+from brink.models import ModelBase, Model
 from string import Template
 import rethinkdb as r
 import argparse
@@ -59,7 +59,7 @@ def sync_db(args):
         for v in vars(module):
             var = getattr(module, v)
 
-            if isinstance(var, MetaModel) and var is not Model:
+            if isinstance(var, ModelBase) and var is not Model:
                 r.table_create(var.table_name).run(conn)
                 print("Created table %s" % var.table_name)
 
