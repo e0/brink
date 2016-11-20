@@ -28,7 +28,7 @@ When you have a URL like ``/users/{id}`` you'd of course want to access that id 
 WebSocket handlers
 ------------------
 
-Writing handlers for WebSocket connections in Brink is surprisinigly easy. Unlike regular handlers, WebSocket handlers will receive to arguments. The regular ``request`` object and a special WebSocketResponse object. 
+Writing handlers for WebSocket connections in Brink is surprisinigly easy. Unlike regular handlers, WebSocket handlers will receive two arguments. The regular ``request`` object and a special WebSocketResponse object. 
 
 
 ::

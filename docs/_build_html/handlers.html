@@ -100,6 +100,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">Models</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Contrib</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="users_auth.html">Users and Authentication</a></li>
+</ul>
 
             
           
@@ -165,7 +169,7 @@
 </div>
 <div class="section" id="websocket-handlers">
 <h2>WebSocket handlers<a class="headerlink" href="#websocket-handlers" title="Permalink to this headline">¶</a></h2>
-<p>Writing handlers for WebSocket connections in Brink is surprisinigly easy. Unlike regular handlers, WebSocket handlers will receive to arguments. The regular <code class="docutils literal"><span class="pre">request</span></code> object and a special WebSocketResponse object.</p>
+<p>Writing handlers for WebSocket connections in Brink is surprisinigly easy. Unlike regular handlers, WebSocket handlers will receive two arguments. The regular <code class="docutils literal"><span class="pre">request</span></code> object and a special WebSocketResponse object.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_messasge_feed</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">ws</span><span class="p">):</span>
    <span class="k">async</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">Message</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">changes</span><span class="p">():</span>
       <span class="n">ws</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
