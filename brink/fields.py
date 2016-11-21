@@ -101,3 +101,27 @@ class BooleanField(Field):
         if type(data) is not bool:
             raise FieldInvalidType()
         return super().validate(data)
+
+class ListField(Field):
+    """
+    Holds a list of values. Takes another field type as the list value.
+    """
+
+    def __init__(self, field_type, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__value = []
+        self.field_type = field_type
+
+    def __iter__(self):
+        return self.__value
+
+    def append(self, item):
+        self.__value.append(self.field_type.validate(item))
+
+    def pop(self):
+        return self.__value.pop()
+
+    def validate(self, data):
+        for item in data:
+            self.field_type.validate(item)
+        return data
