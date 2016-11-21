@@ -1,5 +1,4 @@
 from aiohttp import web
-from cerberus import Validator
 from brink.serialization import json_dumps
 from brink.exceptions import HTTPBadRequest
 
@@ -24,15 +23,3 @@ def __ws_handler_wrapper(handler):
         return ws
     return new_handler
 
-
-def handle_model(cls, validate=True):
-    v = Validator({})
-
-    def decorator(handler):
-        async def new_handler(request):
-            body = await request.json()
-            model = cls(**body)
-            model.validate()
-            return await handler(request, model)
-        return new_handler
-    return decorator

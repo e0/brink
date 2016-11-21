@@ -44,6 +44,17 @@ class ModelBase(type):
         return getattr(self.objects, attr)
 
 class Model(object, metaclass=ModelBase):
+    """
+    Model is to be subclassed by all application models. An arbitrary dictionary
+    can be provided upon initialization like so
+
+    ``Model({"key": "value"})``
+
+    which would be the equivalent of this
+
+    ``Model().wrap({"key": "value"})``
+    """
+
     def __init__(self, **kwargs):
         self._state = {}
         self.wrap(kwargs)
@@ -76,6 +87,9 @@ class Model(object, metaclass=ModelBase):
 
     @property
     def fields(self):
+        """
+        Provides an iterable for all model fields.
+        """
         for attr, value in self._meta.fields.items():
             if isinstance(value, Field):
                 yield attr, value
@@ -93,6 +107,9 @@ class Model(object, metaclass=ModelBase):
         return data
 
     def wrap(self, data):
+        """
+        Wraps and consumes an arbitrary dictionary into the model.
+        """
         for name, field in self.fields:
             try:
                 self._state[name] = data[name]
@@ -100,6 +117,10 @@ class Model(object, metaclass=ModelBase):
                 continue
 
     def validate(self):
+        """
+        Validates all field values for the model.
+        """
+
         errors = {}
 
         for name, field in self.fields:
@@ -114,6 +135,12 @@ class Model(object, metaclass=ModelBase):
         return True
 
     async def save(self):
+        """
+        Persists the model to the database. If the model holds no primary key,
+        a new one will automatically created by RethinkDB. Otherwise it will
+        overwrite the current model persisted to the database.
+        """
+
         if hasattr(self, "before_save"):
             self.before_save()
 
@@ -140,6 +167,9 @@ class Model(object, metaclass=ModelBase):
         return self
 
     async def delete(self):
+        """
+        Deletes the model from the database.
+        """
         await r.table_name(self.table_name) \
             .get(self.id) \
             .delete() \

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting started &mdash; Brink 0.1.0 documentation</title>
+  <title>Models &mdash; Brink 0.1.0 documentation</title>
   
 
   
@@ -34,8 +34,7 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="Brink 0.1.0 documentation" href="index.html"/>
-        <link rel="next" title="Configuration" href="config.html"/>
-        <link rel="prev" title="Welcome to Brink’s documentation!" href="index.html"/> 
+        <link rel="prev" title="Fields" href="fields_ref.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -84,12 +83,8 @@
           
             
             
-                <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#install-brink">Install brink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#start-a-project">Start a project</a></li>
-</ul>
-</li>
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -98,9 +93,10 @@
 <li class="toctree-l1"><a class="reference internal" href="handlers.html">Handlers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">Models</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Contrib</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="users_auth.html">Users and Authentication</a></li>
+<p class="caption"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="fields_ref.html">Fields</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Models</a></li>
 </ul>
 
             
@@ -131,11 +127,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Getting started</li>
+    <li>Models</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/getting_started.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/models_ref.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -145,35 +141,50 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="getting-started">
-<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
-<p>Brink requires Python 3.6 which at the moment of writing is not yet released. However, the proposed
-development setup uses Docker to setup the development environment meaning you don&#8217;t have to worry about it.</p>
-<p>If you do want to run it locally, you can install the dev version of Python 3 on MacOS like so</p>
-<p><code class="docutils literal"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">--devel</span> <span class="pre">python3</span></code></p>
-<div class="section" id="install-brink">
-<h2>Install brink<a class="headerlink" href="#install-brink" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">brink</span></code></p>
-</div>
-<div class="section" id="start-a-project">
-<h2>Start a project<a class="headerlink" href="#start-a-project" title="Permalink to this headline">¶</a></h2>
-<p>Starting a project is as simple as running a command and you&#8217;re good to go.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ brink start-project myproj
-$ cd myproj
-$ brink sync-db
-$ brink run
-</pre></div>
-</div>
-<p>Which will create the inital project structure as such</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>├── myproj
-│   ├── __init__.py
-│   ├── handlers.py
-│   ├── models.py
-│   └── urls.py
-└── settings.py
-</pre></div>
-</div>
-</div>
+  <div class="section" id="module-brink.models">
+<span id="models"></span><h1>Models<a class="headerlink" href="#module-brink.models" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="brink.models.Model">
+<em class="property">class </em><code class="descclassname">brink.models.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/brink/models.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#brink.models.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model is to be subclassed by all application models. An arbitrary dictionary
+can be provided upon initialization like so</p>
+<p><code class="docutils literal"><span class="pre">Model({&quot;key&quot;:</span> <span class="pre">&quot;value&quot;})</span></code></p>
+<p>which would be the equivalent of this</p>
+<p><code class="docutils literal"><span class="pre">Model().wrap({&quot;key&quot;:</span> <span class="pre">&quot;value&quot;})</span></code></p>
+<dl class="method">
+<dt id="brink.models.Model.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/brink/models.html#Model.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#brink.models.Model.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the model from the database.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="brink.models.Model.fields">
+<code class="descname">fields</code><a class="headerlink" href="#brink.models.Model.fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides an iterable for all model fields.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brink.models.Model.save">
+<code class="descname">save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/brink/models.html#Model.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#brink.models.Model.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persists the model to the database. If the model holds no primary key,
+a new one will automatically created by RethinkDB. Otherwise it will
+overwrite the current model persisted to the database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brink.models.Model.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/brink/models.html#Model.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#brink.models.Model.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates all field values for the model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brink.models.Model.wrap">
+<code class="descname">wrap</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/brink/models.html#Model.wrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#brink.models.Model.wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps and consumes an arbitrary dictionary into the model.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -183,10 +194,8 @@ $ brink run
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="config.html" class="btn btn-neutral float-right" title="Configuration" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="index.html" class="btn btn-neutral" title="Welcome to Brink’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="fields_ref.html" class="btn btn-neutral" title="Fields" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
