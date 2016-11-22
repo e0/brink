@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting started &mdash; Brink 0.1.0 documentation</title>
+  <title>Handler decorators &mdash; Brink 0.1.0 documentation</title>
   
 
   
@@ -34,8 +34,7 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="Brink 0.1.0 documentation" href="index.html"/>
-        <link rel="next" title="Configuration" href="config.html"/>
-        <link rel="prev" title="Welcome to Brink’s documentation!" href="index.html"/> 
+        <link rel="prev" title="Models" href="models_ref.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -84,12 +83,8 @@
           
             
             
-                <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#install-brink">Install brink</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#start-a-project">Start a project</a></li>
-</ul>
-</li>
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -99,10 +94,10 @@
 <li class="toctree-l1"><a class="reference internal" href="models.html">Models</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Reference</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="fields_ref.html">Fields</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models_ref.html">Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="decorators_ref.html">Handler decorators</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Handler decorators</a></li>
 </ul>
 
             
@@ -133,11 +128,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Getting started</li>
+    <li>Handler decorators</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/getting_started.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/decorators_ref.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -147,35 +142,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="getting-started">
-<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
-<p>Brink requires Python 3.6 which at the moment of writing is not yet released. However, the proposed
-development setup uses Docker to setup the development environment meaning you don&#8217;t have to worry about it.</p>
-<p>If you do want to run it locally, you can install the dev version of Python 3 on MacOS like so</p>
-<p><code class="docutils literal"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">--devel</span> <span class="pre">python3</span></code></p>
-<div class="section" id="install-brink">
-<h2>Install brink<a class="headerlink" href="#install-brink" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">brink</span></code></p>
-</div>
-<div class="section" id="start-a-project">
-<h2>Start a project<a class="headerlink" href="#start-a-project" title="Permalink to this headline">¶</a></h2>
-<p>Starting a project is as simple as running a command and you&#8217;re good to go.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ brink start-project myproj
-$ cd myproj
-$ brink sync-db
-$ brink run
+  <div class="section" id="handler-decorators">
+<h1>Handler decorators<a class="headerlink" href="#handler-decorators" title="Permalink to this headline">¶</a></h1>
+<p>Handler decorators in Brink help you take care of common task in a neat and
+convenient way.</p>
+<span class="target" id="module-brink.decorators"></span><dl class="function">
+<dt id="brink.decorators.require_request_model">
+<code class="descclassname">brink.decorators.</code><code class="descname">require_request_model</code><span class="sig-paren">(</span><em>cls</em>, <em>*args</em>, <em>*</em>, <em>validate=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/brink/decorators.html#require_request_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#brink.decorators.require_request_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a handler require that a request body that map towards the given model
+is provided. Unless the <code class="docutils literal"><span class="pre">validate</span></code> option is set to <code class="docutils literal"><span class="pre">False</span></code> the data will
+be validated against the model&#8217;s fields.</p>
+<p>The model will be passed to the handler as the last positional argument.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@require_request_model</span><span class="p">(</span><span class="n">Model</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">handle_model</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">200</span><span class="p">,</span> <span class="n">model</span>
 </pre></div>
 </div>
-<p>Which will create the inital project structure as such</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>├── myproj
-│   ├── __init__.py
-│   ├── handlers.py
-│   ├── models.py
-│   └── urls.py
-└── settings.py
-</pre></div>
-</div>
-</div>
+</dd></dl>
+
 </div>
 
 
@@ -185,10 +169,8 @@ $ brink run
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="config.html" class="btn btn-neutral float-right" title="Configuration" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="index.html" class="btn btn-neutral" title="Welcome to Brink’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="models_ref.html" class="btn btn-neutral" title="Models" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

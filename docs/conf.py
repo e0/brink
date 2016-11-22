@@ -36,6 +36,7 @@ import sphinx_rtd_theme
 extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'sphinx.ext.autodoc'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
