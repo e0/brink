@@ -32,7 +32,10 @@ setup(
 
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
 
-    install_requires=["aiohttp", "aiohttp_autoreload", "aiorethink", "cerberus"],
+    install_requires=["aiohttp", "aiohttp_autoreload", "rethinkdb"],
+
+    setup_requires=["pytest-runner"],
+    tests_require=["pytest"],
 
     extras_require={
         "dev": ["check-manifest"],

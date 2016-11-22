@@ -30,9 +30,11 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contrib
+   :caption: Reference
 
-   users_auth
+   fields_ref
+   models_ref
+   decorators_ref
    ...
 
 .. _aiohttp: http://aiohttp.readthedocs.io/
