@@ -72,6 +72,9 @@ class CharField(Field):
         super().__init__(*args, **kwargs)
 
     def validate(self, data):
+        if type(data) is not str:
+            raise FieldInvalidType()
+
         if len(data) < self.min_length:
             raise FieldInvalidLength()
 
@@ -114,6 +117,9 @@ class ListField(Field):
 
     def __iter__(self):
         return self.__value
+
+    def __len__(self):
+        return len(self.__value)
 
     def append(self, item):
         self.__value.append(self.field_type.validate(item))
