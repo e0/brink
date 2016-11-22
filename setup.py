@@ -9,7 +9,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="brink",
-    version="0.2.1",
+    version="0.2.2",
     description="A simple real time web framework based on aiohttp and RethinkDB.",
     long_description=long_description,
     url="https://github.com/lohmander/brink",
