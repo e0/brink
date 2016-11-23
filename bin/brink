@@ -123,17 +123,21 @@ def sync_db(args):
         try:
             module = importlib.import_module("%s.models" % app)
         except ModuleNotFoundError:
-            print("  🙊  No models found")
+            print("  🙊  No models found\n")
             continue
 
         for v in vars(module):
             var = getattr(module, v)
 
             if isinstance(var, ModelBase) and var is not Model:
-                r.table_create(var.table_name).run(conn)
-                print("  ✅  Created table %s" % var.table_name)
+                try:
+                    r.table_create(var.table_name).run(conn)
+                    print("  ✅  Created table `%s`" % var.table_name)
+                except r.ReqlOpFailedError:
+                    print("  ✅  Table `%s` already exists" % var.table_name)
+        print("")
 
-    print("\nDone 👍")
+    print("Done 👍")
 
 
 def __get_config():
