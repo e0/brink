@@ -76,6 +76,7 @@ class Model(object, metaclass=ModelBase):
     def __setattr__(self, attr, value):
         if attr in [key for key, _ in self.fields]:
             self._state[attr] = self._meta.fields[attr].validate(value)
+            print(attr, self._state[attr])
         else:
             super().__setattr__(attr, value)
 
@@ -114,7 +115,7 @@ class Model(object, metaclass=ModelBase):
             try:
                 self._state[name] = data[name]
             except KeyError:
-                continue
+                self._state[name] = None
 
     def validate(self):
         """
