@@ -24,7 +24,7 @@ def run_docker(args):
     link = []
 
     if args.db:
-        print("Running RethinkDB in Docker...")
+        print("🐳 Running RethinkDB in Docker...")
         call([
             "docker", "run",
             "--name", "rethinkdb",
@@ -38,7 +38,7 @@ def run_docker(args):
 
         link = ["--link", "rethinkdb:rethinkdb"]
 
-    print("Running project `%s` in Docker...\n" % project_name)
+    print("🐳 Running project `%s` in Docker...\n" % project_name)
     call([
         "docker", "run",
         "--name", project_name,
@@ -81,7 +81,7 @@ def start_project(args):
     template_dir = os.path.abspath("%s/../../template" % __file__ )
 
     include_docker = input("Do you want to include a Dockerfile? [y/n] ") == "y"
-    print("\n-----\n")
+    print("-----\n")
 
     # Create the basic project folder structure
     os.makedirs("%s/%s" % (args.name, args.name))
@@ -104,9 +104,9 @@ def start_project(args):
                     target.write(file_content)
                     target.close()
 
-                    print("Wrote %s" % target.name)
+                    print("  ✅  Wrote %s" % target.name)
 
-    print("Done creating project \"%s\"" % args.name)
+    print("\nDone creating project `%s` 👍" % args.name)
 
 
 def sync_db(args):
@@ -119,16 +119,21 @@ def sync_db(args):
     conn = r.connect(**config.DATABASE or {})
 
     for app in config.INSTALLED_APPS:
-        module = importlib.import_module("%s.models" % app)
+        print("Syncing models for `%s`:" % app)
+        try:
+            module = importlib.import_module("%s.models" % app)
+        except ModuleNotFoundError:
+            print("  🙊  No models found")
+            continue
 
         for v in vars(module):
             var = getattr(module, v)
 
             if isinstance(var, ModelBase) and var is not Model:
                 r.table_create(var.table_name).run(conn)
-                print("Created table %s" % var.table_name)
+                print("  ✅  Created table %s" % var.table_name)
 
-    print("Done")
+    print("\nDone 👍")
 
 
 def __get_config():
@@ -137,8 +142,8 @@ def __get_config():
     return config
 
 def __missing_config():
-    print("No config.py file found in the current directory.")
-    print("Make sure to be in the project root directory when starting the Brink server.")
+    print("❌  No config.py file found in the current directory.")
+    print("\nMake sure to be in the project root directory when starting the Brink server.")
 
 
 # Setup CLI arguments
