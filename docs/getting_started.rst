@@ -32,5 +32,12 @@ Which will create the inital project structure as such ::
    │   ├── handlers.py
    │   ├── models.py
    │   └── urls.py
-   └── settings.py
+   └── config.py
 
+RethinkDB
+---------
+
+If you don't already have RethinkDB up and running, the easiest way to get started
+is to use Docker. Then simply run ::
+
+   $ docker run -p 8080:8080 -p 28015:28015 -v $(pwd)/db_data:/data -d rethinkdb
