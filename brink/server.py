@@ -40,7 +40,9 @@ def run_server(conf):
         logger.addHandler(ch)
 
     server.make_handler(access_log=logger)
-    web.run_app(server, port=config.get("PORT", 8888))
+    port = config.get("PORT", 8888)
+    print("🌍  Server listening on port %s\n" % port)
+    web.run_app(server, port=port, print=lambda *args: None)
 
 
 def __load_app(server, package):
