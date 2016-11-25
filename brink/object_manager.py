@@ -16,7 +16,7 @@ class QuerySet(object):
         self.model_cls = model_cls
         self.query = r.table(table_name)
         self.single = False
-        self.changes = False
+        self.returns_changes = False
 
     def __await__(self):
         return self.__run().__await__()
@@ -30,7 +30,7 @@ class QuerySet(object):
     async def __run(self):
         res = await self.query.run(await conn.get())
         return self.model_cls(**res) if self.single else \
-            ObjectSet(self.model_cls, res, changes=self.changes)
+            ObjectSet(self.model_cls, res, returns_changes=self.returns_changes)
 
     def get(self, id):
         self.query = self.query.get(id)
@@ -42,17 +42,18 @@ class QuerySet(object):
 
     def changes(self, *args, **kwargs):
         self.query = self.query.changes(*args, **kwargs)
-        self.changes = True
-        return
+        self.returns_changes = True
+        self.single = False
+        return self
 
     async def as_list(self):
         return await (await self).as_list()
 
 class ObjectSet(object):
-    def __init__(self, model_cls, cursor, changes=False):
+    def __init__(self, model_cls, cursor, returns_changes=False):
         self.cursor = cursor
         self.model_cls = model_cls
-        self.returns_changes = False
+        self.returns_changes = returns_changes
 
     async def as_list(self):
         return [obj async for obj in self]
