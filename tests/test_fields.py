@@ -13,6 +13,17 @@ def test_field_validate_required():
 
     assert field.validate("val") == "val"
 
+def test_integer_field_validate_required():
+    field1 = fields.IntegerField(required=True)
+
+    with pytest.raises(fields.FieldRequired):
+        field1.validate(None)
+
+    field2 = fields.IntegerField()
+
+    field2.validate(None)
+
+
 def test_integer_field_validate_type():
     field = fields.IntegerField()
 
@@ -20,6 +31,15 @@ def test_integer_field_validate_type():
         field.validate("test")
 
     assert field.validate(10) == 10
+
+def test_char_field_validate_required():
+    field1 = fields.CharField(required=True)
+
+    with pytest.raises(fields.FieldRequired):
+        field1.validate(None)
+
+    field2 = fields.CharField()
+    field2.validate(None)
 
 def test_char_field_validate_min_length():
     field = fields.CharField(min_length=5)
@@ -44,6 +64,15 @@ def test_char_field_validate_type():
         field.validate(10)
 
     assert field.validate("test") == "test"
+
+def test_bool_field_validate_required():
+    field1 = fields.BooleanField(required=True)
+
+    with pytest.raises(fields.FieldRequired):
+        field1.validate(None)
+
+    field2 = fields.BooleanField()
+    field2.validate(None)
 
 def test_bool_field_validate_type():
     field = fields.BooleanField()

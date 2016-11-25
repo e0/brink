@@ -41,8 +41,14 @@ class Field(object):
         return data
 
     def validate(self, data):
+        for k in dir(self):
+            if k[:9] == "validate_":
+                getattr(self, k)(data)
+        return data
+
+    def validate_required(self, data):
         """
-        Validates a value in accordance to the field properties.
+        Validates that a value is present if the field is required.
         """
         if self.required and data is None:
             raise FieldRequired()
@@ -56,10 +62,12 @@ class IntegerField(Field):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def validate(self, data):
+    def validate_type(self, data):
+        if data is None:
+            return
+
         if type(data) is not int:
             raise FieldInvalidType()
-        return super().validate(data)
 
 class CharField(Field):
     """
@@ -71,17 +79,26 @@ class CharField(Field):
         self.max_length = max_length
         super().__init__(*args, **kwargs)
 
-    def validate(self, data):
+    def validate_type(self, data):
+        if data is None:
+            return
+
         if type(data) is not str:
             raise FieldInvalidType()
+
+    def validate_min_length(self, data):
+        if not hasattr(data, "__len__"):
+            return
 
         if len(data) < self.min_length:
             raise FieldInvalidLength()
 
+    def validate_max_length(self, data):
+        if not hasattr(data, "__len__"):
+            return
+
         if len(data) > self.max_length:
             raise FieldInvalidLength()
-
-        return super().validate(data)
 
 class PasswordField(CharField):
     """
@@ -100,10 +117,12 @@ class BooleanField(Field):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def validate(self, data):
+    def validate_type(self, data):
+        if data is None:
+            return
+
         if type(data) is not bool:
             raise FieldInvalidType()
-        return super().validate(data)
 
 class ListField(Field):
     """
