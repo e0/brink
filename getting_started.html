@@ -88,6 +88,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#install-brink">Install brink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#start-a-project">Start a project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rethinkdb">RethinkDB</a></li>
 </ul>
 </li>
 </ul>
@@ -172,7 +173,15 @@ $ brink run
 │   ├── handlers.py
 │   ├── models.py
 │   └── urls.py
-└── settings.py
+└── config.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="rethinkdb">
+<h2>RethinkDB<a class="headerlink" href="#rethinkdb" title="Permalink to this headline">¶</a></h2>
+<p>If you don&#8217;t already have RethinkDB up and running, the easiest way to get started
+is to use Docker. Then simply run</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ docker run -p 8080:8080 -p 28015:28015 -v $(pwd)/db_data:/data -d rethinkdb
 </pre></div>
 </div>
 </div>
