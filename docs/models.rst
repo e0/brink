@@ -28,7 +28,7 @@ You have full access to the ReQL API provided by RethinkDB.
 
 **Delete an item**::
 
-   await Item.delete(id)
+   await Item.get(id).delete()
 
 **Save an item**::
 
