@@ -78,6 +78,10 @@ def build(args):
 
 
 def start_project(args):
+    if args.name == "test":
+        print("😞  Unfortunately `test` is not a valid project name. Try something else.")
+        return
+
     template_dir = os.path.abspath("%s/../../template" % __file__ )
 
     include_docker = input("Do you want to include a Dockerfile? [y/n] ") == "y"
