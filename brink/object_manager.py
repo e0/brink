@@ -2,46 +2,60 @@ from brink.db import conn
 import rethinkdb as r
 import copy
 
-
 class ObjectManager(object):
-
     def __init__(self, model_cls, table_name):
         self.model_cls = model_cls
         self.table_name = table_name
 
+    def __getattr__(self, attr):
+        qs = QuerySet(self.model_cls, self.table_name)
+        return getattr(qs, attr)
+
+class QuerySet(object):
+    def __init__(self, model_cls, table_name):
+        self.model_cls = model_cls
+        self.query = r.table(table_name)
+        self.single = False
+        self.changes = False
+
+    def __await__(self):
+        return self.__run().__await__()
+
+    def __getattr__(self, attr):
+        def proxy(*args, **kwargs):
+            self.query = getattr(self.query, attr)(*args, **kwargs)
+            return self
+        return proxy
+
+    async def __run(self):
+        res = await self.query.run(await conn.get())
+        return self.model_cls(**res) if self.single else \
+            ObjectSet(self.model_cls, res, changes=self.changes)
+
+    def get(self, id):
+        self.query = self.query.get(id)
+        self.single = True
+        return self
+
     def all(self):
-        return ObjectSet(self.model_cls, r.table(self.table_name))
+        return self
 
-    def filter(self, *args, **kwargs):
-        return self.all().filter(*args, **kwargs)
+    def changes(self, *args, **kwargs):
+        self.query = self.query.changes(*args, **kwargs)
+        self.changes = True
+        return
 
-    async def get(self, id):
-        return self.model_cls(
-            **(await r.table(self.table_name).get(id).run(await conn.get())))
-
-    async def delete(self, id):
-        await r.table(self.table_name).get(id).delete().run(await conn.get())
-
+    async def as_list(self):
+        return await (await self).as_list()
 
 class ObjectSet(object):
-
-    cursor = None
-
-    def __init__(self, model_cls, query):
-        self.query = query
+    def __init__(self, model_cls, cursor, changes=False):
+        self.cursor = cursor
         self.model_cls = model_cls
         self.returns_changes = False
 
-    def changes(self):
-        self.query = self.query.changes()
-        self.returns_changes = True
-        return self
-
     async def as_list(self):
         return [obj async for obj in self]
-
-    async def run(self):
-        return await self.query.run(await conn.get())
 
     def __aiter__(self):
         return self
@@ -57,16 +71,9 @@ class ObjectSet(object):
             if self.returns_changes:
                 data = data["new_val"]
 
-
             model = model_cls(**data)
 
             return model
         else:
             raise StopAsyncIteration
-
-    def __getattr__(self, attr):
-        def func_proxy(*args, **kwargs):
-            self.query = getattr(self.query, attr)(*args, **kwargs)
-            return self
-        return func_proxy
 
