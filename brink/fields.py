@@ -24,7 +24,22 @@ class FieldInvalidLength(FieldError):
     """
     pass
 
-class Field(object):
+
+def validator(m):
+    m.validator = True
+    return m
+
+class FieldBase(type):
+    def __init__(self, name, bases, attrs):
+        self.validators = []
+
+        for k in dir(self):
+            v = getattr(self, k)
+            if hasattr(v, "validator") and v.validator:
+                self.validators.append(v)
+
+
+class Field(object, metaclass=FieldBase):
     """
     Field base class. All other fields inherit from this class, so usually you
     want to use one of the more specialized fields. However, there might be
@@ -41,11 +56,11 @@ class Field(object):
         return data
 
     def validate(self, data):
-        for k in dir(self):
-            if k[:9] == "validate_":
-                getattr(self, k)(data)
+        for v in self.validators:
+            v(self, data)
         return data
 
+    @validator
     def validate_required(self, data):
         """
         Validates that a value is present if the field is required.
@@ -62,6 +77,7 @@ class IntegerField(Field):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    @validator
     def validate_type(self, data):
         if data is None:
             return
@@ -79,6 +95,7 @@ class CharField(Field):
         self.max_length = max_length
         super().__init__(*args, **kwargs)
 
+    @validator
     def validate_type(self, data):
         if data is None:
             return
@@ -86,6 +103,7 @@ class CharField(Field):
         if type(data) is not str:
             raise FieldInvalidType()
 
+    @validator
     def validate_min_length(self, data):
         if not hasattr(data, "__len__"):
             return
@@ -93,6 +111,7 @@ class CharField(Field):
         if len(data) < self.min_length:
             raise FieldInvalidLength()
 
+    @validator
     def validate_max_length(self, data):
         if not hasattr(data, "__len__"):
             return
@@ -117,6 +136,7 @@ class BooleanField(Field):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    @validator
     def validate_type(self, data):
         if data is None:
             return
