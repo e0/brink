@@ -67,7 +67,7 @@ class Model(object, metaclass=ModelBase):
                 if field.hidden:
                     continue
 
-                data[name] = self._state[name]
+                data[name] = field.show(self._state[name])
             except KeyError:
                 continue
 
@@ -103,7 +103,7 @@ class Model(object, metaclass=ModelBase):
             if field.pk:
                 continue
 
-            data[key] = self._state[key]
+            data[key] = field.treat(self._state[key])
 
         return data
 

@@ -57,9 +57,25 @@ class Field(object, metaclass=FieldBase):
         self.hidden = hidden
 
     def treat(self, data):
+        """
+        All field values will be passed through this method before being
+        saved to the database. Thus, you can make any final modifications
+        to the value here.
+        """
+        return data
+
+    def show(self, data):
+        """
+        All field values will be passed through this method before being
+        rendered as json. Thus you can perform any desired modifications to the
+        final output here.
+        """
         return data
 
     def validate(self, data):
+        """
+        Runs all field validators.
+        """
         for v in self.validators:
             v(self, data)
         return data
@@ -157,8 +173,14 @@ class ListField(Field):
         super().__init__(*args, **kwargs)
         self.field_type = field_type
 
+    def treat(self, data):
+        if data is None:
+            return []
+        return data
+
     def validate(self, data):
         data = data or []
         for item in data:
             self.field_type.validate(item)
         return data
+

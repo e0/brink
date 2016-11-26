@@ -12,11 +12,15 @@ class ObjectManager(object):
         return getattr(qs, attr)
 
 class QuerySet(object):
+    aggregators = ["group", "ungroup", "reduce", "fold", "count", "sum", "avg",
+                   "min", "max", "distinct", "contains"]
+
     def __init__(self, model_cls, table_name):
         self.model_cls = model_cls
         self.query = r.table(table_name)
         self.single = False
         self.returns_changes = False
+        self.non_model_res = False
 
     def __await__(self):
         return self.__run().__await__()
@@ -24,13 +28,25 @@ class QuerySet(object):
     def __getattr__(self, attr):
         def proxy(*args, **kwargs):
             self.query = getattr(self.query, attr)(*args, **kwargs)
+
+            if attr in self.aggregators:
+                self.non_model_res = True
+
             return self
         return proxy
 
     async def __run(self):
         res = await self.query.run(await conn.get())
-        return self.model_cls(**res) if self.single else \
-            ObjectSet(self.model_cls, res, returns_changes=self.returns_changes)
+        if self.non_model_res:
+            return res
+        elif self.single:
+            return self.model_cls(**res)
+        else:
+            return ObjectSet(
+                self.model_cls,
+                res,
+                returns_changes=self.returns_changes
+            )
 
     def get(self, id):
         self.query = self.query.get(id)
