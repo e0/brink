@@ -12,7 +12,7 @@ Getting started is very easy assuming you have Docker installed.
 
 Start RethinkDB like so
 
-    $ docker run rethinkdb -p 8080:8080 -p 28015:28015 -d --name rethink
+    $ docker run -p 8080:8080 -p 28015:28015 -d --name rethink rethinkdb
 
 And then get started with your project like so
 
