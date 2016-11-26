@@ -26,6 +26,10 @@ class FieldInvalidLength(FieldError):
 
 
 def validator(m):
+    """
+    Marks a field method as a validator, and thus it will be executed whenever
+    ``validate`` is called on the field.
+    """
     m.validator = True
     return m
 
