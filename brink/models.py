@@ -7,13 +7,16 @@ import rethinkdb as r
 
 
 class ModelMeta(object):
+
     def __init__(self):
         self.fields = {}
 
     def add_field(self, name, field):
         self.fields[name] = field
 
+
 class ModelBase(type):
+
     def __new__(cls, name, bases, attrs):
         super_new = super().__new__
 
@@ -42,6 +45,7 @@ class ModelBase(type):
 
     def __getattr__(self, attr):
         return getattr(self.objects, attr)
+
 
 class Model(object, metaclass=ModelBase):
     """
@@ -175,4 +179,3 @@ class Model(object, metaclass=ModelBase):
             .get(self.id) \
             .delete() \
             .run(await conn.get())
-

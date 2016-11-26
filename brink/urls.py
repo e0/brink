@@ -20,4 +20,3 @@ def DELETE(route, handler):
 
 def WS(route, handler):
     return ("WS", route, handler)
-

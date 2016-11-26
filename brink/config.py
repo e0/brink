@@ -20,7 +20,8 @@ class Config(object):
 
         if type(config) is dict:
             for key, value in config.items():
-                string += "\n%s%s: %s" % (indent, key, self.__str_config(value, indent=indent + "  "))
+                string += "\n%s%s: %s" % (indent, key,
+                                          self.__str_config(value, indent=indent + "  "))
         else:
             string += str(config)
 

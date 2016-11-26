@@ -21,4 +21,3 @@ def require_request_model(cls, *args, validate=True, **kwargs):
             return await handler(request, *args, model, **kwargs)
         return new_handler
     return decorator
-

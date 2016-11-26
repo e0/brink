@@ -29,8 +29,8 @@ def run_server(conf):
 
     # Enable source code auto reload on change only if DEBUG is enabled
     if config.get("DEBUG"):
-        aiohttp_autoreload.add_reload_hook(lambda: \
-            print("\nDetected code change. Reloading...\n"))
+        aiohttp_autoreload.add_reload_hook(lambda:
+                                           print("\nDetected code change. Reloading...\n"))
         aiohttp_autoreload.start()
 
         logger.setLevel(logging.DEBUG)
@@ -55,7 +55,7 @@ def __load_app(server, package):
 def __add_route(server, url, package):
     (method, route, handler) = url
     handler_wrapper = __ws_handler_wrapper if method == "WS" \
-            else __handler_wrapper
+        else __handler_wrapper
 
     try:
         handler_func = resolve_func(handler)

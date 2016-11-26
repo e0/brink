@@ -1,10 +1,12 @@
 import sys
 
+
 class FieldError(Exception):
     """
     FieldError base class. All field errors inherit from this exception class.
     """
     pass
+
 
 class FieldRequired(FieldError):
     """
@@ -12,11 +14,13 @@ class FieldRequired(FieldError):
     """
     pass
 
+
 class FieldInvalidType(FieldError):
     """
     Thrown whenever a value of an invalid type is provided to the field.
     """
     pass
+
 
 class FieldInvalidLength(FieldError):
     """
@@ -33,7 +37,9 @@ def validator(m):
     m.validator = True
     return m
 
+
 class FieldBase(type):
+
     def __init__(self, name, bases, attrs):
         self.validators = []
 
@@ -51,6 +57,7 @@ class Field(object, metaclass=FieldBase):
     any other standard field, and in that case you could use Field to store any
     value.
     """
+
     def __init__(self, pk=False, required=False, hidden=False):
         self.pk = pk
         self.required = required
@@ -89,6 +96,7 @@ class Field(object, metaclass=FieldBase):
             raise FieldRequired()
         return data
 
+
 class IntegerField(Field):
     """
     IntegerField. Use to hold integers.
@@ -104,6 +112,7 @@ class IntegerField(Field):
 
         if type(data) is not int:
             raise FieldInvalidType()
+
 
 class CharField(Field):
     """
@@ -139,6 +148,7 @@ class CharField(Field):
         if len(data) > self.max_length:
             raise FieldInvalidLength()
 
+
 class PasswordField(CharField):
     """
     PasswordField is suitable for holding passwords (duh). Hides the value by
@@ -147,6 +157,7 @@ class PasswordField(CharField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, hidden=True, **kwargs)
+
 
 class BooleanField(Field):
     """
@@ -163,6 +174,7 @@ class BooleanField(Field):
 
         if type(data) is not bool:
             raise FieldInvalidType()
+
 
 class ListField(Field):
     """
@@ -183,4 +195,3 @@ class ListField(Field):
         for item in data:
             self.field_type.validate(item)
         return data
-

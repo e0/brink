@@ -32,7 +32,8 @@ setup(
 
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
 
-    install_requires=["aiohttp", "aiohttp_autoreload", "rethinkdb", "inflection"],
+    install_requires=["aiohttp", "aiohttp_autoreload",
+                      "rethinkdb", "inflection"],
 
     setup_requires=["pytest-runner"],
     tests_require=["pytest"],

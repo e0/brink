@@ -1,5 +1,6 @@
 import rethinkdb as r
 
+
 class Connection(object):
     """
     Connection provides an instance of the rethinkdb connection object.
@@ -20,4 +21,3 @@ class Connection(object):
         )
 
 conn = Connection()
-

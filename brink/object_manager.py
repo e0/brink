@@ -2,7 +2,9 @@ from brink.db import conn
 import rethinkdb as r
 import copy
 
+
 class ObjectManager(object):
+
     def __init__(self, model_cls, table_name):
         self.model_cls = model_cls
         self.table_name = table_name
@@ -10,6 +12,7 @@ class ObjectManager(object):
     def __getattr__(self, attr):
         qs = QuerySet(self.model_cls, self.table_name)
         return getattr(qs, attr)
+
 
 class QuerySet(object):
     aggregators = ["group", "ungroup", "reduce", "fold", "count", "sum", "avg",
@@ -65,7 +68,9 @@ class QuerySet(object):
     async def as_list(self):
         return await (await self).as_list()
 
+
 class ObjectSet(object):
+
     def __init__(self, model_cls, cursor, returns_changes=False):
         self.cursor = cursor
         self.model_cls = model_cls
@@ -82,7 +87,7 @@ class ObjectSet(object):
             self.cursor = await self.query.run(await conn.get())
 
         if (await self.cursor.fetch_next()):
-            data = await self.cursor.next();
+            data = await self.cursor.next()
             model_cls = copy.deepcopy(self.model_cls)
 
             if self.returns_changes:
@@ -93,4 +98,3 @@ class ObjectSet(object):
             return model
         else:
             raise StopAsyncIteration
-
