@@ -47,5 +47,5 @@ Now whenever you change the framework source code, it'll update in your project.
 
 ## Documentation
 
-Full documentation is (will be) available at <https://lohmander.github.io/brink/>.
+Full documentation is (will be) available at <https://brinkframework.github.io/brink/>.
 
